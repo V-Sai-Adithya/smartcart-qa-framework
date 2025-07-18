@@ -1,0 +1,42 @@
+@echo off
+:: Set timestamp
+for /f "tokens=1-4 delims=/ " %%a in ("%date%") do (
+   set month=%%a
+   set day=%%b
+   set year=%%c
+)
+for /f "tokens=1-2 delims=: " %%a in ("%time%") do (
+   set hour=%%a
+   set minute=%%b
+)
+
+:: Remove spaces from hour (for 12-hour format)
+set hour=%hour: =0%
+
+:: Combine for folder name
+set timestamp=%year%-%month%-%day%_%hour%%minute%
+set folder=manual-run-%timestamp%
+
+echo.
+echo ==========================
+echo Running Maven Tests...
+echo ==========================
+mvn clean test
+
+echo.
+echo ==========================
+echo Generating Allure Report...
+echo ==========================
+
+:: Use your exact Allure installation path
+set "ALLURE_PATH=C:\Users\Adithya\Desktop\SOFTWARE\allure-2.24.0\bin"
+"%ALLURE_PATH%\allure.bat" generate target/allure-results --clean -o target/reports/%folder%
+
+echo.
+echo ==========================
+echo Report saved to: target/reports/%folder%
+echo Opening Allure Report...
+echo ==========================
+
+start target/reports/%folder%\index.html
+pause
